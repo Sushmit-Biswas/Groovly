@@ -30,6 +30,11 @@ export default function RoomPage() {
       ? room.host === user._id
       : room.host._id === user._id);
 
+  const isHostRef = useRef(false);
+  useEffect(() => {
+    isHostRef.current = !!isHost;
+  }, [isHost]);
+
   // Fetch room data
   const fetchRoom = useCallback(async () => {
     try {
@@ -140,9 +145,11 @@ export default function RoomPage() {
 
     // Listen for room closed
     socket.on(SOCKET_EVENTS.ROOM_CLOSED, async () => {
-      alert("Room has been closed by the host");
-      await loadUser(); // Force state refresh before navigating
-      router.push("/dashboard");
+      if (!isHostRef.current) {
+        alert("Room has been closed by the host");
+        await loadUser(); // Force state refresh before navigating
+        router.push("/dashboard");
+      }
     });
 
     // Cleanup
