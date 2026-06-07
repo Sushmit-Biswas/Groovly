@@ -386,10 +386,13 @@ exports.playNextSong = async (req, res, next) => {
           status: SONG_STATUS.PLAYED,
           playedAt: new Date(),
         });
-        room.currentSong = null;
-        room.playbackState.isPlaying = false;
-        room.playbackState.position = 0;
-        await room.save();
+        await Room.findByIdAndUpdate(room._id, {
+          $unset: { currentSong: "" },
+          $set: {
+            "playbackState.isPlaying": false,
+            "playbackState.position": 0
+          }
+        });
         
         const populatedRoom = await Room.findById(room._id)
           .populate("host", "name email avatarUrl")
