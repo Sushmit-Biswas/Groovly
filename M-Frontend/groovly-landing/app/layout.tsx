@@ -6,6 +6,7 @@ import {
   Imperial_Script,
   Quicksand,
 } from "next/font/google";
+import Script from "next/script";
 import "../styles/globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
@@ -50,12 +51,14 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${poppins.variable} ${lato.variable} ${imperialScript.variable} ${quicksand.variable}`}
     >
-      <head>
-        <script src="https://www.youtube.com/iframe_api" async></script>
-      </head>
       <body className="bg-bg text-white font-sans min-h-screen flex items-stretch">
+        <Script
+          src="https://www.youtube.com/iframe_api"
+          strategy="beforeInteractive"
+        />
         <div className="flex-1">{children}</div>
       </body>
     </html>
   );
 }
+

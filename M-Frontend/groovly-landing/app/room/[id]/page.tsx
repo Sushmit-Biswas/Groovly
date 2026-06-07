@@ -355,6 +355,7 @@ function NowPlaying({
   const [duration, setDuration] = useState(0);
   const [isDraggingSlider, setIsDraggingSlider] = useState(false);
   const songEndedHandledRef = useRef(false);
+  const lastPlayedSongIdRef = useRef<string | null>(null);
 
   // Define handlePlayNext before using it in effects
   const handlePlayNext = useCallback(async () => {
@@ -387,12 +388,10 @@ function NowPlaying({
         console.log("🎵 Song ended, autoplaying next song...");
 
         try {
-          // Fetch latest queue and play next immediately
           await fetchQueue();
           await handlePlayNext();
         } catch (err) {
           console.error("Error in autoplay:", err);
-          // Retry once
           try {
             await handlePlayNext();
           } catch (retryErr) {
@@ -409,18 +408,19 @@ function NowPlaying({
     };
   }, [isHost, room._id, fetchQueue, handlePlayNext]);
 
-  // Play song with YouTube when it changes
+  // Play song with YouTube when it changes or player becomes ready
   useEffect(() => {
     if (!isHost || !currentSong || !youtubePlayer.isReady) return;
 
-    if (currentSong.youtubeId) {
-      console.log("Playing with YouTube:", currentSong.youtubeId);
-      // Reset time and duration for new song
+    // Only trigger if the song actually changed (avoid re-playing on every re-render)
+    if (currentSong.youtubeId && lastPlayedSongIdRef.current !== currentSong._id) {
+      console.log("🎵 Playing with YouTube:", currentSong.youtubeId);
+      lastPlayedSongIdRef.current = currentSong._id;
       setCurrentTime(0);
       setDuration(0);
       youtubePlayer.playVideo(currentSong.youtubeId, 0);
     }
-  }, [currentSong?._id, isHost, youtubePlayer.isReady]);
+  }, [currentSong?._id, currentSong?.youtubeId, isHost, youtubePlayer.isReady, youtubePlayer.playVideo]);
 
   // Sync YouTube player state - always update to stay in sync
   useEffect(() => {
@@ -479,9 +479,7 @@ function NowPlaying({
 
   const handlePlay = () => {
     if (isHost && youtubePlayer.isReady) {
-      // Check if we need to load a video or just resume
       if (currentSong?.youtubeId) {
-        // If no video is currently loaded or it's a different video, load it
         if (
           !youtubePlayer.currentVideoId ||
           youtubePlayer.currentVideoId !== currentSong.youtubeId
@@ -489,12 +487,10 @@ function NowPlaying({
           console.log("Loading and playing video:", currentSong.youtubeId);
           youtubePlayer.playVideo(currentSong.youtubeId, 0);
         } else {
-          // Same video, just resume
           console.log("Resuming current video");
           youtubePlayer.resume();
         }
       } else {
-        // Just resume
         youtubePlayer.resume();
       }
       setIsPlaying(true);
@@ -509,7 +505,6 @@ function NowPlaying({
 
   const handlePause = () => {
     if (isHost && youtubePlayer.isReady) {
-      // YouTube playback
       youtubePlayer.pause();
       setIsPlaying(false);
       socketService.emit("playback-update", {
@@ -533,7 +528,9 @@ function NowPlaying({
         songId: currentSong._id,
       });
 
-      // Fetch updated queue before playing next
+      // Reset last played so the next song will trigger playback
+      lastPlayedSongIdRef.current = null;
+
       if (queue.length > 0) {
         try {
           await fetchQueue();
@@ -575,30 +572,14 @@ function NowPlaying({
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  if (!currentSong) {
-    return (
-      <div className="rounded-2xl border border-white/10 bg-surface/40 backdrop-blur-xl p-8 text-center">
-        <div className="text-muted mb-2">No song playing</div>
-        <div className="text-white/60 text-sm mb-4">
-          Add a song to get started!
-        </div>
-        {isHost && queue.length > 0 && (
-          <button
-            onClick={handlePlayNext}
-            className="px-6 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition"
-          >
-            ▶ Start Playing
-          </button>
-        )}
-      </div>
-    );
-  }
-
+  // CRITICAL FIX: Always render the YouTube player div for the host,
+  // even when no song is playing. This ensures the YT.Player can
+  // initialize on the DOM element and be ready when a song starts.
   return (
     <div className="rounded-2xl border border-white/10 bg-surface/40 backdrop-blur-xl p-6">
-      {/* YouTube Player Container - visible for host */}
+      {/* YouTube Player Container - ALWAYS rendered for host (hidden when no song) */}
       {isHost && (
-        <div className="mb-4">
+        <div className={currentSong ? "mb-4" : "hidden"}>
           <div
             id={`youtube-player-${room._id}`}
             className="w-full aspect-video rounded-lg overflow-hidden"
@@ -606,110 +587,130 @@ function NowPlaying({
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-3">
-        <div className="text-sm text-muted">Now Playing</div>
-        <div className="flex items-center gap-2">
-          {/* Show playback status */}
-          {isHost && youtubePlayer.isReady && (
-            <div className="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full">
-              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-              YouTube Music (Full Song)
-            </div>
-          )}
-          {!isHost && (
-            <div className="flex items-center gap-2 text-xs text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full">
-              <span className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></span>
-              Playing on host's device
-            </div>
-          )}
-          {isHost && youtubePlayer.isReady && (
-            <div className="flex items-center gap-2 text-xs text-green-400 bg-green-500/10 px-3 py-1 rounded-full">
-              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-              {isPlaying ? "Playing locally" : "Ready to play"}
-            </div>
+      {!currentSong ? (
+        /* No song playing state */
+        <div className="text-center py-2">
+          <div className="text-muted mb-2">No song playing</div>
+          <div className="text-white/60 text-sm mb-4">
+            Add a song to get started!
+          </div>
+          {isHost && queue.length > 0 && (
+            <button
+              onClick={handlePlayNext}
+              className="px-6 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition"
+            >
+              ▶ Start Playing
+            </button>
           )}
         </div>
-      </div>
-      <div className="flex gap-6">
-        {currentSong.thumbnail && (
-          <img
-            src={currentSong.thumbnail}
-            alt={currentSong.title}
-            className="w-24 h-24 rounded-lg object-cover"
-          />
-        )}
-        <div className="flex-1">
-          <h3 className="text-2xl font-bold text-white mb-1">
-            {currentSong.title}
-          </h3>
-          <p className="text-lg text-muted mb-4">{currentSong.artist}</p>
-
-          {/* Audio Progress Bar with Slider */}
-          <div className="mb-4">
-            <input
-              type="range"
-              min="0"
-              max={duration || 1}
-              step="0.1"
-              value={Math.min(currentTime, duration || 0)}
-              onChange={handleSliderChange}
-              onMouseDown={handleSliderMouseDown}
-              onMouseUp={handleSliderMouseUp}
-              onTouchStart={handleSliderMouseDown}
-              onTouchEnd={handleSliderMouseUp}
-              disabled={!isHost}
-              className="w-full h-2 bg-gray-700 rounded-full appearance-none cursor-pointer slider mb-2"
-              style={{
-                background: `linear-gradient(to right, #a855f7 0%, #a855f7 ${
-                  duration > 0 ? (currentTime / duration) * 100 : 0
-                }%, #374151 ${
-                  duration > 0 ? (currentTime / duration) * 100 : 0
-                }%, #374151 100%)`,
-              }}
-            />
-            <div className="flex justify-between text-xs text-muted">
-              <span>{formatTime(currentTime)}</span>
-              <span>{formatTime(duration)}</span>
-            </div>
-          </div>
-
-          {/* Playback Controls */}
-          <div className="space-y-2">
-            {!isHost && (
-              <div className="text-xs text-muted mb-2">
-                🎵 Only the host can control playback
-              </div>
-            )}
-            <div className="flex gap-3">
-              {isHost && (
-                <>
-                  {isPlaying ? (
-                    <button
-                      onClick={handlePause}
-                      className="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition"
-                    >
-                      ⏸ Pause
-                    </button>
-                  ) : (
-                    <button
-                      onClick={handlePlay}
-                      className="px-4 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition"
-                    >
-                      ▶ Play
-                    </button>
-                  )}
-                  <button
-                    onClick={handleSkip}
-                    className="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition"
-                  >
-                    ⏭ Skip
-                  </button>
-                </>
+      ) : (
+        /* Now playing state */
+        <>
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-sm text-muted">Now Playing</div>
+            <div className="flex items-center gap-2">
+              {isHost && youtubePlayer.isReady && (
+                <div className="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full">
+                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                  YouTube Music (Full Song)
+                </div>
+              )}
+              {!isHost && (
+                <div className="flex items-center gap-2 text-xs text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full">
+                  <span className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></span>
+                  Playing on host&apos;s device
+                </div>
+              )}
+              {isHost && youtubePlayer.isReady && (
+                <div className="flex items-center gap-2 text-xs text-green-400 bg-green-500/10 px-3 py-1 rounded-full">
+                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                  {isPlaying ? "Playing locally" : "Ready to play"}
+                </div>
               )}
             </div>
           </div>
-        </div>
-      </div>
+          <div className="flex gap-6">
+            {currentSong.thumbnail && (
+              <img
+                src={currentSong.thumbnail}
+                alt={currentSong.title}
+                className="w-24 h-24 rounded-lg object-cover"
+              />
+            )}
+            <div className="flex-1">
+              <h3 className="text-2xl font-bold text-white mb-1">
+                {currentSong.title}
+              </h3>
+              <p className="text-lg text-muted mb-4">{currentSong.artist}</p>
+
+              {/* Audio Progress Bar with Slider */}
+              <div className="mb-4">
+                <input
+                  type="range"
+                  min="0"
+                  max={duration || 1}
+                  step="0.1"
+                  value={Math.min(currentTime, duration || 0)}
+                  onChange={handleSliderChange}
+                  onMouseDown={handleSliderMouseDown}
+                  onMouseUp={handleSliderMouseUp}
+                  onTouchStart={handleSliderMouseDown}
+                  onTouchEnd={handleSliderMouseUp}
+                  disabled={!isHost}
+                  className="w-full h-2 bg-gray-700 rounded-full appearance-none cursor-pointer slider mb-2"
+                  style={{
+                    background: `linear-gradient(to right, #a855f7 0%, #a855f7 ${
+                      duration > 0 ? (currentTime / duration) * 100 : 0
+                    }%, #374151 ${
+                      duration > 0 ? (currentTime / duration) * 100 : 0
+                    }%, #374151 100%)`,
+                  }}
+                />
+                <div className="flex justify-between text-xs text-muted">
+                  <span>{formatTime(currentTime)}</span>
+                  <span>{formatTime(duration)}</span>
+                </div>
+              </div>
+
+              {/* Playback Controls */}
+              <div className="space-y-2">
+                {!isHost && (
+                  <div className="text-xs text-muted mb-2">
+                    🎵 Only the host can control playback
+                  </div>
+                )}
+                <div className="flex gap-3">
+                  {isHost && (
+                    <>
+                      {isPlaying ? (
+                        <button
+                          onClick={handlePause}
+                          className="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition"
+                        >
+                          ⏸ Pause
+                        </button>
+                      ) : (
+                        <button
+                          onClick={handlePlay}
+                          className="px-4 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition"
+                        >
+                          ▶ Play
+                        </button>
+                      )}
+                      <button
+                        onClick={handleSkip}
+                        className="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition"
+                      >
+                        ⏭ Skip
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
