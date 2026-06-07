@@ -38,20 +38,19 @@ app.set("io", io);
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
+  const baseUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
   console.log(`
 ╔════════════════════════════════════════════════════════════╗
-║                                                            ║
-║     GROOVLY BACKEND - Collaborative Music Platform         ║
-║                                                            ║
-║     Server running on port ${PORT}                            ║
-║     Environment: ${
-    process.env.NODE_ENV || "development"
-  }                               ║
-║     Socket.io: Enabled                                     ║
-║                                                            ║
-║     API Docs: http://localhost:${PORT}/                       ║
-║     Health: http://localhost:${PORT}/api/health               ║
-║                                                            ║
+║                                                            
+║     GROOVLY BACKEND - Collaborative Music Platform         
+║                                                            
+║     Server running on port ${PORT}                            
+║     Environment: ${process.env.NODE_ENV || "development"}                               
+║     Socket.io: Enabled                                     
+║                                                            
+║     API Docs: ${baseUrl}/                       
+║     Health: ${baseUrl}/api/health               
+║                                                            
 ╚════════════════════════════════════════════════════════════╝
   `);
 });
