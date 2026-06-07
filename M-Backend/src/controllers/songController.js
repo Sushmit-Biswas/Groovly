@@ -279,9 +279,12 @@ exports.skipSong = async (req, res, next) => {
       room.currentSong &&
       room.currentSong.toString() === song._id.toString()
     ) {
-      room.currentSong = null;
-      room.playbackState.isPlaying = false;
-      await room.save();
+      await Room.findByIdAndUpdate(room._id, {
+        $set: {
+          currentSong: null,
+          "playbackState.isPlaying": false
+        }
+      });
     }
 
     res.status(200).json({
@@ -423,10 +426,17 @@ exports.playNextSong = async (req, res, next) => {
     }
 
     // Set next song as current
-    room.currentSong = nextSong._id;
-    room.playbackState.isPlaying = true;
-    room.playbackState.position = 0;
-    await room.save();
+    await Song.findByIdAndUpdate(nextSong._id, {
+      status: SONG_STATUS.PLAYING,
+    });
+
+    await Room.findByIdAndUpdate(room._id, {
+      $set: {
+        currentSong: nextSong._id,
+        "playbackState.isPlaying": true,
+        "playbackState.position": 0
+      }
+    });
 
     const populatedRoom = await Room.findById(room._id)
       .populate("host", "name email avatarUrl")
