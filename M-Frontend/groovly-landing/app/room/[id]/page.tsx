@@ -139,8 +139,9 @@ export default function RoomPage() {
     });
 
     // Listen for room closed
-    socket.on(SOCKET_EVENTS.ROOM_CLOSED, () => {
+    socket.on(SOCKET_EVENTS.ROOM_CLOSED, async () => {
       alert("Room has been closed by the host");
+      await loadUser(); // Force state refresh before navigating
       router.push("/dashboard");
     });
 
@@ -162,6 +163,7 @@ export default function RoomPage() {
   const handleLeaveRoom = async () => {
     try {
       await api.post(API_ENDPOINTS.LEAVE_ROOM(roomId));
+      await loadUser(); // Force fresh user state to clear activeRoom
       router.push("/dashboard");
     } catch (err) {
       console.error("Error leaving room:", err);
@@ -174,6 +176,7 @@ export default function RoomPage() {
 
     try {
       await api.delete(API_ENDPOINTS.CLOSE_ROOM(roomId));
+      await loadUser(); // Force fresh user state
       router.push("/dashboard");
     } catch (err) {
       setError(handleApiError(err));
@@ -354,6 +357,7 @@ function NowPlaying({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isDraggingSlider, setIsDraggingSlider] = useState(false);
+  const [isSeeking, setIsSeeking] = useState(false);
   const songEndedHandledRef = useRef(false);
   const lastPlayedSongIdRef = useRef<string | null>(null);
 
@@ -427,7 +431,7 @@ function NowPlaying({
     if (!isHost || !youtubePlayer.isReady) return;
 
     setIsPlaying(youtubePlayer.isPlaying);
-    if (!isDraggingSlider) {
+    if (!isDraggingSlider && !isSeeking) {
       setCurrentTime(youtubePlayer.currentTime);
     }
 
@@ -464,7 +468,7 @@ function NowPlaying({
       isPlaying: boolean;
     }) => {
       setDuration(data.duration);
-      if (!isDraggingSlider) {
+      if (!isDraggingSlider && !isSeeking) {
         setCurrentTime(data.currentTime);
       }
       setIsPlaying(data.isPlaying);
@@ -550,6 +554,7 @@ function NowPlaying({
 
   const handleSliderMouseDown = () => {
     setIsDraggingSlider(true);
+    setIsSeeking(true);
   };
 
   const handleSliderMouseUp = () => {
@@ -563,6 +568,10 @@ function NowPlaying({
         currentTime: currentTime,
         isPlaying: youtubePlayer.isPlaying,
       });
+      // Ignore player time updates for 1 second to allow seek to process and prevent snapping back
+      setTimeout(() => setIsSeeking(false), 1000);
+    } else {
+      setIsSeeking(false);
     }
   };
 

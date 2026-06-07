@@ -380,6 +380,31 @@ exports.playNextSong = async (req, res, next) => {
     }
 
     if (!nextSong) {
+      // Clear current song if queue is empty
+      if (room.currentSong) {
+        await Song.findByIdAndUpdate(room.currentSong, {
+          status: SONG_STATUS.PLAYED,
+          playedAt: new Date(),
+        });
+        room.currentSong = null;
+        room.playbackState.isPlaying = false;
+        room.playbackState.position = 0;
+        await room.save();
+        
+        const populatedRoom = await Room.findById(room._id)
+          .populate("host", "name email avatarUrl")
+          .populate("members.user", "name email avatarUrl")
+          .populate("currentSong");
+
+        // Emit socket event
+        const io = req.app.get("io");
+        if (io) {
+          io.to(room._id.toString()).emit("song-started", {
+            room: populatedRoom,
+          });
+        }
+      }
+
       return res.status(404).json({
         success: false,
         message: "No songs in queue",
