@@ -387,8 +387,8 @@ exports.playNextSong = async (req, res, next) => {
           playedAt: new Date(),
         });
         await Room.findByIdAndUpdate(room._id, {
-          $unset: { currentSong: "" },
           $set: {
+            currentSong: null,
             "playbackState.isPlaying": false,
             "playbackState.position": 0
           }
