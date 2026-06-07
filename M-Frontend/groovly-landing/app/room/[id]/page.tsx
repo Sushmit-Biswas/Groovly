@@ -362,14 +362,16 @@ function NowPlaying({
   const lastPlayedSongIdRef = useRef<string | null>(null);
 
   // Define handlePlayNext before using it in effects
-  const handlePlayNext = useCallback(async () => {
+  const handlePlayNext = useCallback(async (isAutoplay = false) => {
     try {
       await api.post(API_ENDPOINTS.PLAY_NEXT_SONG(room._id));
       // Room will be updated via socket event
     } catch (error) {
       console.error("Failed to play next song:", error);
       const err = error as { response?: { data?: { message?: string } } };
-      alert(err.response?.data?.message || "Failed to start playing");
+      if (!isAutoplay) {
+        alert(err.response?.data?.message || "Failed to start playing");
+      }
     }
   }, [room._id]);
 
@@ -393,11 +395,11 @@ function NowPlaying({
 
         try {
           await fetchQueue();
-          await handlePlayNext();
+          await handlePlayNext(true);
         } catch (err) {
           console.error("Error in autoplay:", err);
           try {
-            await handlePlayNext();
+            await handlePlayNext(true);
           } catch (retryErr) {
             console.error("Retry failed:", retryErr);
           }
