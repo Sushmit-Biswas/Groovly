@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd M-Frontend/groovly-landing && npm install && npm run build",
+  "outputDirectory": "M-Frontend/groovly-landing/.next",
+  "framework": "nextjs",
+  "installCommand": "cd M-Frontend/groovly-landing && npm install"
+}
