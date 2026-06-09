@@ -618,7 +618,7 @@ function NowPlaying({
           </div>
           {isHost && queue.length > 0 && (
             <button
-              onClick={handlePlayNext}
+              onClick={() => handlePlayNext(false)}
               className="px-6 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition"
             >
               ▶ Start Playing
