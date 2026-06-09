@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuthStore } from "@/store/authStore";
 import api, { handleApiError } from "@/lib/api";
 import { API_ENDPOINTS } from "@/config/constants";
@@ -82,25 +83,28 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-black relative overflow-hidden">
+    <main className="min-h-screen relative overflow-hidden">
       {/* Background effects */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,_rgba(139,92,246,0.12),_transparent_50%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(236,72,153,0.08),_transparent_60%)]" />
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_80%_80%_at_20%_-20%,_rgba(120,119,198,0.18),_transparent)]" />
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_80%_80%_at_80%_120%,_rgba(255,107,157,0.18),_transparent)]" />
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_600px_at_50%_40%,_rgba(139,92,246,0.06),_transparent)]" />
 
       <div className="relative z-10">
         {/* Navbar */}
-        <nav className="border-b border-white/10 bg-black/50 backdrop-blur-sm">
+        <nav className="border-b border-white/10 bg-black/30 backdrop-blur-xl">
           <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
-            <img
-              src="/assets/logo_with_name.png"
-              alt="Groovly"
-              className="h-10"
-            />
+            <Link href="/" className="group flex items-center gap-3 transition-transform duration-300 hover:scale-105">
+              <img
+                src="/assets/logo_with_name.png"
+                alt="Groovly"
+                className="h-10 drop-shadow-[0_0_12px_rgba(168,85,247,0.4)]"
+              />
+            </Link>
             <div className="flex items-center gap-4">
-              <span className="text-white">Welcome, {user?.name}</span>
+              <span className="text-white/80 text-sm">Welcome, <span className="text-white font-semibold">{user?.name}</span></span>
               <button
                 onClick={logout}
-                className="px-4 py-2 rounded-lg border border-white/20 text-white hover:bg-white/10 transition"
+                className="px-4 py-2 rounded-xl border border-white/10 text-white/80 hover:bg-white/10 hover:text-white transition-all duration-300 text-sm"
               >
                 Logout
               </button>
@@ -113,7 +117,8 @@ export default function DashboardPage() {
           {/* Active Room Banner */}
           {activeRoom && (
             <div className="mb-8 max-w-4xl mx-auto">
-              <div className="rounded-2xl border border-purple-500/30 bg-purple-500/10 backdrop-blur-xl p-6">
+              <div className="glass-panel rounded-2xl p-6 border-purple-500/30 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400" />
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-1">
@@ -130,14 +135,14 @@ export default function DashboardPage() {
                   <div className="flex gap-3">
                     <button
                       onClick={handleRejoinRoom}
-                      className="px-6 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-500 transition"
+                      className="px-6 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold hover:from-purple-500 hover:to-pink-500 transition-all shadow-lg shadow-purple-500/25"
                     >
                       Rejoin Room
                     </button>
                     <button
                       onClick={handleCloseRoom}
                       disabled={loadingAction}
-                      className="px-6 py-2 rounded-lg border border-red-500/50 text-red-400 hover:bg-red-500/10 transition disabled:opacity-50"
+                      className="px-6 py-2 rounded-xl border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-50"
                     >
                       {loadingAction ? "Closing..." : "Close Room"}
                     </button>
@@ -280,7 +285,7 @@ function CreateRoomModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-surface/95 backdrop-blur-xl p-8">
+      <div className="w-full max-w-md glass-panel rounded-3xl p-8">
         <h2 className="text-2xl font-bold text-white mb-6">Create New Room</h2>
 
         {error && (
@@ -415,7 +420,7 @@ function JoinRoomModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-surface/95 backdrop-blur-xl p-8">
+      <div className="w-full max-w-md glass-panel rounded-3xl p-8">
         <h2 className="text-2xl font-bold text-white mb-6">Join Room</h2>
 
         {error && (

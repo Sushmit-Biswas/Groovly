@@ -159,7 +159,7 @@ export default function Page() {
 
           {/* Scattered CD Layout - Edge-to-Edge */}
           <section
-            className="relative min-h-[2000px] w-screen -mx-6 md:-mx-10 lg:-mx-16 pt-20"
+            className="relative w-screen -mx-6 md:-mx-10 lg:-mx-16"
             id="features"
           >
             {/* CD 1 - Stuck to Left Edge Top - Higher position with float animation */}
@@ -291,7 +291,7 @@ export default function Page() {
         </section>
 
         {/* Animated Arrow CTA Buttons */}
-        <section className="relative mx-auto mt-48 mb-20 max-w-5xl px-6">
+        <section className="relative mx-auto mt-16 mb-20 max-w-5xl px-6">
           <div className="flex flex-col items-center justify-center gap-14">
             <h2 className="text-5xl md:text-6xl font-bold text-center bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
               Ready to Get Grooving?
