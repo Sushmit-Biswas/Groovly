@@ -52,16 +52,37 @@ body::-webkit-scrollbar {
 }
 
 body {
-  background-image: radial-gradient(
-      ellipse at top,
-      rgba(139, 92, 246, 0.08),
-      transparent 50%
-    ),
-    radial-gradient(
-      ellipse at bottom right,
-      rgba(236, 72, 153, 0.05),
-      transparent 50%
-    );
+  background-color: #050505;
+  background-image: 
+    radial-gradient(ellipse 80% 80% at 20% -20%, rgba(120, 119, 198, 0.15), transparent),
+    radial-gradient(ellipse 80% 80% at 80% 120%, rgba(255, 107, 157, 0.15), transparent);
+  background-attachment: fixed;
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: rgba(20, 20, 25, 0.4);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.glass-panel-hover {
+  transition: all 0.3s ease;
+}
+
+.glass-panel-hover:hover {
+  background: rgba(30, 30, 35, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4), 0 0 20px rgba(139, 92, 246, 0.1);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 a {

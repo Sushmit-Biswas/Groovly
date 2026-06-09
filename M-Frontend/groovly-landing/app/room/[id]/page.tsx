@@ -594,7 +594,11 @@ function NowPlaying({
   // even when no song is playing. This ensures the YT.Player can
   // initialize on the DOM element and be ready when a song starts.
   return (
-    <div className="rounded-2xl border border-white/10 bg-surface/40 backdrop-blur-xl p-6">
+    <div className="glass-panel rounded-3xl p-6 lg:p-8 relative overflow-hidden">
+      {/* Background ambient glow based on current song */}
+      {currentSong && (
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[40%] bg-purple-500/20 blur-[100px] pointer-events-none rounded-full" />
+      )}
       {/* YouTube Player Container - ALWAYS rendered for host (hidden when no song) */}
       {isHost && (
         <div className={currentSong ? "mb-4" : "hidden"}>
@@ -647,19 +651,22 @@ function NowPlaying({
               )}
             </div>
           </div>
-          <div className="flex gap-6">
+          <div className="flex gap-6 mt-4 relative z-10">
             {currentSong.thumbnail && (
-              <img
-                src={currentSong.thumbnail}
-                alt={currentSong.title}
-                className="w-24 h-24 rounded-lg object-cover"
-              />
+              <div className="relative group">
+                <div className="absolute inset-0 bg-purple-500/40 blur-xl rounded-xl group-hover:bg-purple-400/50 transition-colors duration-500" />
+                <img
+                  src={currentSong.thumbnail}
+                  alt={currentSong.title}
+                  className="relative w-24 h-24 rounded-lg object-cover shadow-2xl border border-white/10"
+                />
+              </div>
             )}
-            <div className="flex-1">
-              <h3 className="text-2xl font-bold text-white mb-1">
+            <div className="flex-1 min-w-0 flex flex-col justify-center">
+              <h3 className="text-2xl md:text-3xl font-extrabold text-white truncate drop-shadow-md mb-1">
                 {currentSong.title}
               </h3>
-              <p className="text-lg text-muted mb-4">{currentSong.artist}</p>
+              <p className="text-lg text-purple-300 font-medium truncate mb-4">{currentSong.artist}</p>
 
               {/* Audio Progress Bar with Slider */}
               <div className="mb-4">
@@ -789,7 +796,7 @@ function QueueList({
 
   if (sortedQueue.length === 0) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-surface/40 backdrop-blur-xl p-12 text-center">
+      <div className="glass-panel rounded-3xl p-12 text-center">
         <div className="text-muted">No songs in queue</div>
         <div className="text-white/60 text-sm mt-2">
           Be the first to add a song!
@@ -815,7 +822,7 @@ function QueueList({
         return (
           <div
             key={song._id}
-            className="rounded-xl border border-white/10 bg-surface/40 backdrop-blur-xl p-4 hover:border-white/20 transition"
+            className="rounded-xl glass-panel glass-panel-hover p-4"
           >
             <div className="flex items-center gap-4">
               <div className="text-muted font-mono text-sm w-8">
@@ -927,23 +934,28 @@ function MembersList({
   hostId: string;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-surface/40 backdrop-blur-xl p-6">
-      <h3 className="text-xl font-bold text-white mb-4">
+    <div className="glass-panel rounded-3xl p-6 lg:p-8 sticky top-24">
+      <h3 className="text-xl font-bold text-white mb-6 drop-shadow-sm">
         Members ({members.length})
       </h3>
-      <div className="space-y-3">
+      <div className="space-y-4">
         {members.map((member) => {
           const user = member.user as User;
           const isHost = user._id === hostId;
 
           return (
-            <div key={user._id} className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold">
-                {user.name.charAt(0).toUpperCase()}
+            <div key={user._id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors">
+              <div className="relative">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold text-lg shadow-lg border border-white/10">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#12121a]"></div>
               </div>
-              <div className="flex-1">
-                <div className="text-white font-medium">{user.name}</div>
-                {isHost && <div className="text-xs text-purple-400">Host</div>}
+              <div className="flex-1 min-w-0">
+                <p className="text-white font-medium truncate">{user.name}</p>
+                <p className="text-xs text-muted">
+                  {isHost ? "Host" : "Member"}
+                </p>
               </div>
             </div>
           );

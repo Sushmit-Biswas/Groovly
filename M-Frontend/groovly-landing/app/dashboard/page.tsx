@@ -148,7 +148,7 @@ export default function DashboardPage() {
           )}
 
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-white mb-4">
+            <h2 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-orange-400 mb-6 drop-shadow-sm tracking-tight">
               Ready to vibe?
             </h2>
             <p className="text-muted text-lg">
@@ -164,10 +164,10 @@ export default function DashboardPage() {
             <button
               onClick={() => !activeRoom && setShowCreateModal(true)}
               disabled={!!activeRoom}
-              className={`group relative overflow-hidden rounded-3xl border border-white/10 bg-surface/40 backdrop-blur-xl p-12 text-left transition-all ${
+              className={`group relative overflow-hidden rounded-3xl glass-panel p-12 text-left transition-all ${
                 activeRoom
                   ? "opacity-50 cursor-not-allowed"
-                  : "hover:scale-105 hover:border-purple-500/50"
+                  : "glass-panel-hover hover:border-purple-500/50"
               }`}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -201,7 +201,7 @@ export default function DashboardPage() {
             {/* Join Room Card */}
             <button
               onClick={() => setShowJoinModal(true)}
-              className="group relative overflow-hidden rounded-3xl border border-white/10 bg-surface/40 backdrop-blur-xl p-12 text-left transition-all hover:scale-105 hover:border-pink-500/50"
+              className="group relative overflow-hidden rounded-3xl glass-panel p-12 text-left glass-panel-hover hover:border-pink-500/50"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative">
