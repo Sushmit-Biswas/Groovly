@@ -139,13 +139,34 @@ export default function DashboardPage() {
                     >
                       Rejoin Room
                     </button>
-                    <button
-                      onClick={handleCloseRoom}
-                      disabled={loadingAction}
-                      className="px-6 py-2 rounded-xl border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-50"
-                    >
-                      {loadingAction ? "Closing..." : "Close Room"}
-                    </button>
+                    {activeRoom.host === user?._id ? (
+                      <button
+                        onClick={handleCloseRoom}
+                        disabled={loadingAction}
+                        className="px-6 py-2 rounded-xl border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-50"
+                      >
+                        {loadingAction ? "Closing..." : "Close Room"}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={async () => {
+                          setLoadingAction(true);
+                          try {
+                            await api.post(API_ENDPOINTS.LEAVE_ROOM(activeRoom._id));
+                            await loadUser();
+                            setActiveRoom(null);
+                          } catch (error) {
+                            alert(handleApiError(error));
+                          } finally {
+                            setLoadingAction(false);
+                          }
+                        }}
+                        disabled={loadingAction}
+                        className="px-6 py-2 rounded-xl border border-white/20 text-white hover:bg-white/10 transition-all disabled:opacity-50"
+                      >
+                        {loadingAction ? "Leaving..." : "Leave Room"}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

@@ -8,8 +8,7 @@ type CDSide = "left" | "right";
 
 export type CDProps = {
   src: string;
-  side: CDSide;
-  /** Optional override if you need a different disc diameter. */
+  side?: CDSide; // kept for backwards compatibility but not used for positioning inside the component anymore
   size?: number;
   alt?: string;
 };
@@ -20,31 +19,22 @@ export function CD({ src, side, size = 310, alt = "CD artwork" }: CDProps) {
   return (
     <div
       className={clsx(
-        "group relative overflow-hidden",
-        side === "left" ? "rounded-r-[40px]" : "rounded-l-[40px]",
-        "transition-all duration-700 ease-out"
+        "group relative rounded-full overflow-hidden",
+        "transition-transform duration-500 ease-out hover:scale-105 hover:shadow-[0_0_40px_rgba(168,85,247,0.4)]"
       )}
       style={{
         height: size,
-        width: size * 1.0,
+        width: size,
       }}
     >
+      {/* Spinning Container */}
       <div
         className={clsx(
-          "absolute top-0",
-          "overflow-hidden",
+          "absolute inset-0 rounded-full overflow-hidden",
           "bg-gradient-to-br from-[#111] via-[#181818] to-[#050505]",
-          "shadow-[0_45px_120px_-30px_rgba(0,0,0,0.85)] ring-1 ring-white/10",
-          "transition-all duration-700 ease-out",
-          side === "left"
-            ? "-left-[155px] rounded-full group-hover:left-0 group-hover:rounded-r-[40px]"
-            : "-right-[155px] rounded-full group-hover:right-0 group-hover:rounded-l-[40px]",
-          !reducedMotion && "animate-spin-slow group-hover:animate-none"
+          "shadow-[0_45px_120px_-30px_rgba(0,0,0,0.85)] ring-2 ring-white/20",
+          !reducedMotion && "animate-[spin_20s_linear_infinite]"
         )}
-        style={{
-          width: size,
-          height: size,
-        }}
       >
         <Image
           src={src}
@@ -56,60 +46,19 @@ export function CD({ src, side, size = 310, alt = "CD artwork" }: CDProps) {
           className="absolute inset-0 h-full w-full object-cover"
         />
 
-        <div className="pointer-events-none absolute inset-0 rounded-full border-[5px] border-white/80 transition-opacity duration-700 group-hover:opacity-0" />
-
-        <div
-          className={clsx(
-            "pointer-events-none absolute inset-0 rounded-full",
-            "bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.18),transparent_55%)]",
-            "opacity-0 transition-opacity duration-700 ease-out",
-            !reducedMotion && "group-hover:opacity-100"
-          )}
-        />
-
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity duration-700 group-hover:opacity-0">
-          <div
-            className={clsx(
-              "relative flex h-[100px] w-[100px] items-center justify-center rounded-full",
-              "bg-gradient-to-br from-gray-300 via-gray-200 to-gray-300",
-              "shadow-[0_2px_12px_rgba(0,0,0,0.3),inset_0_1px_3px_rgba(255,255,255,0.8)]",
-              "border border-gray-400/40",
-              "transition-all duration-500 ease-out",
-              !reducedMotion && "group-hover:scale-110"
-            )}
-          >
-            <div className="absolute inset-[8px] rounded-full border border-gray-400/30 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]" />
-            <div className="absolute inset-[16px] rounded-full border border-gray-300/40 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]" />
-
-            <div
-              className={clsx(
-                "relative h-[40px] w-[40px] rounded-full",
-                "bg-gradient-to-br from-white via-gray-100 to-gray-200",
-                "shadow-[0_1px_6px_rgba(0,0,0,0.2),inset_0_-1px_3px_rgba(0,0,0,0.1),inset_0_1px_2px_rgba(255,255,255,0.9)]",
-                "border border-gray-300/50",
-                "transition-transform duration-500 ease-out",
-                !reducedMotion && "group-hover:scale-90"
-              )}
-            >
-              <div className="absolute inset-[6px] rounded-full bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 shadow-[inset_0_1px_3px_rgba(0,0,0,0.3)]" />
-            </div>
+        {/* Center Hole / CD Hub */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="relative flex h-[80px] w-[80px] items-center justify-center rounded-full bg-black/60 backdrop-blur-md border border-white/20 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]">
+             <div className="h-[25px] w-[25px] rounded-full bg-[#111] border border-black shadow-[inset_0_2px_5px_rgba(0,0,0,0.8)]" />
           </div>
         </div>
 
+        {/* CD Glare effect */}
         <div
           className={clsx(
-            "pointer-events-none absolute -bottom-10 left-1/2 h-24 w-36 -translate-x-1/2",
-            "rounded-full bg-gradient-to-t from-accent/50 via-transparent to-transparent blur-3xl",
-            "opacity-0 transition-all duration-500 ease-out",
-            !reducedMotion &&
-              "group-hover:-translate-y-6 group-hover:opacity-90"
-          )}
-        />
-
-        <div
-          className={clsx(
-            "pointer-events-none absolute inset-0",
-            "bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.2),transparent_70%)]"
+            "pointer-events-none absolute inset-0 rounded-full",
+            "bg-[conic-gradient(from_0deg,transparent_0deg,rgba(255,255,255,0.1)_45deg,transparent_90deg,transparent_180deg,rgba(255,255,255,0.1)_225deg,transparent_270deg)]",
+            "opacity-50 group-hover:opacity-80 transition-opacity duration-500"
           )}
         />
       </div>

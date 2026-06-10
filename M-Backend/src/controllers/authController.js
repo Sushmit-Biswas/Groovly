@@ -104,7 +104,7 @@ exports.getMe = async (req, res, next) => {
     
     // Only populate activeRoom if it exists
     if (user.activeRoom) {
-      user = await user.populate('activeRoom', 'name code');
+      user = await user.populate('activeRoom', 'name code host');
     }
 
     // Add Spotify connection status

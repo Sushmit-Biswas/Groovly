@@ -4,6 +4,22 @@ import Link from "next/link";
 import { CD } from "@/components/CD";
 import { StarField } from "@/components/StarField";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2
+    }
+  }
+};
 
 const cdData = [
   { src: "/assets/cd1.jpg", alt: "Groovify your night" },
@@ -159,37 +175,41 @@ export default function Page() {
 
           {/* Scattered CD Layout - Edge-to-Edge */}
           <section
-            className="relative w-screen -mx-6 md:-mx-10 lg:-mx-16"
+            className="absolute inset-0 pointer-events-none w-full overflow-hidden"
             id="features"
           >
             {/* CD 1 - Stuck to Left Edge Top - Higher position with float animation */}
-            <div className="fixed left-0 top-[100px] z-20 opacity-0 translate-y-12 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_0.1s_forwards] animate-[floatSlow_8s_ease-in-out_infinite]">
-              <CD src={cdData[0].src} side="left" alt={cdData[0].alt} />
+            <div className="absolute -left-20 top-[15%] z-20 opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_0.1s_forwards] animate-[floatSlow_8s_ease-in-out_infinite]">
+              <CD src={cdData[0].src} size={280} alt={cdData[0].alt} />
             </div>
 
             {/* CD 2 - Stuck to Right Edge Top - Lower position with float animation */}
-            <div className="fixed right-0 top-[200px] z-20 opacity-0 translate-y-12 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_0.3s_forwards] animate-[floatSlow_9s_ease-in-out_infinite_1s]">
-              <CD src={cdData[1].src} side="right" alt={cdData[1].alt} />
+            <div className="absolute -right-20 top-[25%] z-20 opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_0.3s_forwards] animate-[floatSlow_9s_ease-in-out_infinite_1s]">
+              <CD src={cdData[1].src} size={300} alt={cdData[1].alt} />
             </div>
 
             {/* CD 4 - Stuck to Left Edge Lower with float animation */}
-            <div className="fixed left-0 top-[480px] z-20 opacity-0 translate-y-12 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_0.9s_forwards] animate-[floatSlow_10s_ease-in-out_infinite_2s]">
-              <CD src={cdData[3].src} side="left" alt={cdData[3].alt} />
+            <div className="absolute -left-16 top-[60%] z-20 opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_0.9s_forwards] animate-[floatSlow_10s_ease-in-out_infinite_2s]">
+              <CD src={cdData[3].src} size={260} alt={cdData[3].alt} />
             </div>
 
             {/* CD 5 - Stuck to Right Edge Lower with float animation */}
-            <div className="fixed right-0 top-[580px] z-20 opacity-0 translate-y-12 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_1.1s_forwards] animate-[floatSlow_11s_ease-in-out_infinite_1.5s]">
-              <CD src="/assets/cd3.png" side="right" alt={cdData[4].alt} />
+            <div className="absolute -right-24 top-[75%] z-20 opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_1.1s_forwards] animate-[floatSlow_11s_ease-in-out_infinite_1.5s]">
+              <CD src="/assets/cd3.png" size={320} alt={cdData[4].alt} />
             </div>
-
-            {/* (Feature cards moved below) */}
           </section>
         </header>
 
         {/* Centered Feature Showcase Section (moved out of negative margin area) */}
-        <section className="relative mx-auto max-w-7xl px-6 py-20 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-16">
-            <div className="text-center max-w-3xl">
+        <section className="relative mx-auto max-w-7xl px-6 py-32 flex items-center justify-center">
+          <motion.div 
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            className="flex flex-col items-center gap-16"
+          >
+            <motion.div variants={fadeInUp} className="text-center max-w-3xl">
               <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent mb-5">
                 Your Party, Your Playlist
               </h2>
@@ -197,11 +217,11 @@ export default function Page() {
                 Every guest becomes a DJ. Vote, queue, and vibe together in
                 real-time.
               </p>
-            </div>
+            </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
               {/* Card 1 */}
-              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 transition-all duration-500 hover:scale-[1.03] hover:border-purple-400/50 hover:shadow-2xl hover:shadow-purple-500/30">
+              <motion.div variants={fadeInUp} className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 transition-all duration-500 hover:scale-[1.03] hover:border-purple-400/50 hover:shadow-2xl hover:shadow-purple-500/30">
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <div className="relative z-10">
                   <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-purple-700 shadow-lg shadow-purple-500/50 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110">
@@ -227,10 +247,10 @@ export default function Page() {
                   </p>
                 </div>
                 <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-30" />
-              </div>
+              </motion.div>
 
               {/* Card 2 */}
-              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 transition-all duration-500 hover:scale-[1.03] hover:border-pink-400/50 hover:shadow-2xl hover:shadow-pink-500/30">
+              <motion.div variants={fadeInUp} className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 transition-all duration-500 hover:scale-[1.03] hover:border-pink-400/50 hover:shadow-2xl hover:shadow-pink-500/30">
                 <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <div className="relative z-10">
                   <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-500 to-rose-700 shadow-lg shadow-pink-500/50 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110">
@@ -256,10 +276,10 @@ export default function Page() {
                   </p>
                 </div>
                 <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-pink-600 via-rose-600 to-pink-600 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-30" />
-              </div>
+              </motion.div>
 
               {/* Card 3 */}
-              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 transition-all duration-500 hover:scale-[1.03] hover:border-orange-400/50 hover:shadow-2xl hover:shadow-orange-500/30">
+              <motion.div variants={fadeInUp} className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 transition-all duration-500 hover:scale-[1.03] hover:border-orange-400/50 hover:shadow-2xl hover:shadow-orange-500/30">
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <div className="relative z-10">
                   <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 shadow-lg shadow-orange-500/50 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110">
@@ -285,17 +305,23 @@ export default function Page() {
                   </p>
                 </div>
                 <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-orange-600 via-red-600 to-orange-600 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-30" />
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </section>
 
         {/* Animated Arrow CTA Buttons */}
-        <section className="relative mx-auto mt-16 mb-20 max-w-5xl px-6">
-          <div className="flex flex-col items-center justify-center gap-14">
-            <h2 className="text-5xl md:text-6xl font-bold text-center bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
+        <section className="relative mx-auto mt-16 mb-32 max-w-5xl px-6">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+            className="flex flex-col items-center justify-center gap-14"
+          >
+            <motion.h2 variants={fadeInUp} className="text-5xl md:text-6xl font-bold text-center bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
               Ready to Get Grooving?
-            </h2>
+            </motion.h2>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-8 w-full">
               {/* Login Button with Arrow Animation */}
@@ -471,7 +497,7 @@ export default function Page() {
                 <div className="absolute inset-0 -z-0 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
               </Link>
             </div>
-          </div>
+          </motion.div>
         </section>
 
         {/* Stunning Footer - Full Width Edge-to-Edge */}

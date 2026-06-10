@@ -363,8 +363,9 @@ function NowPlaying({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [isDraggingSlider, setIsDraggingSlider] = useState(false);
-  const [isSeeking, setIsSeeking] = useState(false);
+  const isDraggingSliderRef = useRef(false);
+  const isSeekingRef = useRef(false);
+  const seekTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const songEndedHandledRef = useRef(false);
   const lastPlayedSongIdRef = useRef<string | null>(null);
 
@@ -423,7 +424,26 @@ function NowPlaying({
 
   // Play song with YouTube when it changes or player becomes ready
   useEffect(() => {
-    if (!isHost || !currentSong || !youtubePlayer.isReady) return;
+    if (!isHost || !youtubePlayer.isReady) return;
+
+    if (!currentSong) {
+      if (lastPlayedSongIdRef.current !== null) {
+        console.log("🎵 No current song, stopping video");
+        lastPlayedSongIdRef.current = null;
+        youtubePlayer.pause();
+        setIsPlaying(false);
+        setCurrentTime(0);
+        setDuration(0);
+        
+        socketService.emit("playback-update", {
+          roomId: room._id,
+          duration: 0,
+          currentTime: 0,
+          isPlaying: false,
+        });
+      }
+      return;
+    }
 
     // Only trigger if the song actually changed (avoid re-playing on every re-render)
     if (currentSong.youtubeId && lastPlayedSongIdRef.current !== currentSong._id) {
@@ -433,15 +453,20 @@ function NowPlaying({
       setDuration(0);
       youtubePlayer.playVideo(currentSong.youtubeId, 0);
     }
-  }, [currentSong?._id, currentSong?.youtubeId, isHost, youtubePlayer.isReady, youtubePlayer.playVideo]);
+  }, [currentSong, isHost, youtubePlayer.isReady, youtubePlayer.playVideo, youtubePlayer.pause, room._id]);
 
   // Sync YouTube player state - always update to stay in sync
   useEffect(() => {
     if (!isHost || !youtubePlayer.isReady) return;
 
     setIsPlaying(youtubePlayer.isPlaying);
-    if (!isDraggingSlider && !isSeeking) {
-      setCurrentTime(youtubePlayer.currentTime);
+    
+    // Only update time if not dragging and not seeking
+    if (!isDraggingSliderRef.current && !isSeekingRef.current) {
+      // Ignore random 0 times from YouTube when it's supposed to be playing
+      if (youtubePlayer.currentTime > 0 || currentTime === 0) {
+        setCurrentTime(youtubePlayer.currentTime);
+      }
     }
 
     // Always update duration when it's valid
@@ -450,7 +475,7 @@ function NowPlaying({
     }
 
     // Broadcast to members when valid
-    if (isHost && youtubePlayer.duration > 0) {
+    if (isHost && youtubePlayer.duration > 0 && !isDraggingSliderRef.current && !isSeekingRef.current) {
       socketService.emit("playback-update", {
         roomId: room._id,
         duration: youtubePlayer.duration,
@@ -464,7 +489,7 @@ function NowPlaying({
     youtubePlayer.duration,
     isHost,
     room._id,
-    isDraggingSlider,
+    currentTime
   ]);
 
   // Listen for playback updates from host (ONLY for members)
@@ -477,7 +502,7 @@ function NowPlaying({
       isPlaying: boolean;
     }) => {
       setDuration(data.duration);
-      if (!isDraggingSlider && !isSeeking) {
+      if (!isDraggingSliderRef.current && !isSeekingRef.current) {
         setCurrentTime(data.currentTime);
       }
       setIsPlaying(data.isPlaying);
@@ -488,7 +513,7 @@ function NowPlaying({
     return () => {
       socketService.off("playback-update", handlePlaybackUpdate);
     };
-  }, [isHost, isDraggingSlider]);
+  }, [isHost]);
 
   const handlePlay = () => {
     if (isHost && youtubePlayer.isReady) {
@@ -562,25 +587,30 @@ function NowPlaying({
   };
 
   const handleSliderMouseDown = () => {
-    setIsDraggingSlider(true);
-    setIsSeeking(true);
+    isDraggingSliderRef.current = true;
+    isSeekingRef.current = true;
+    if (seekTimeoutRef.current) {
+      clearTimeout(seekTimeoutRef.current);
+    }
   };
 
   const handleSliderMouseUp = () => {
-    setIsDraggingSlider(false);
+    isDraggingSliderRef.current = false;
 
     if (isHost && youtubePlayer.isReady) {
       youtubePlayer.seek(currentTime);
       socketService.emit("playback-update", {
         roomId: room._id,
-        duration: youtubePlayer.duration,
+        duration: duration,
         currentTime: currentTime,
         isPlaying: youtubePlayer.isPlaying,
       });
-      // Ignore player time updates for 1 second to allow seek to process and prevent snapping back
-      setTimeout(() => setIsSeeking(false), 1000);
+      // Extend the ignore time to 2 seconds to allow buffering to complete
+      seekTimeoutRef.current = setTimeout(() => {
+        isSeekingRef.current = false;
+      }, 2000);
     } else {
-      setIsSeeking(false);
+      isSeekingRef.current = false;
     }
   };
 
@@ -599,13 +629,11 @@ function NowPlaying({
       {currentSong && (
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[40%] bg-purple-500/20 blur-[100px] pointer-events-none rounded-full" />
       )}
-      {/* YouTube Player Container - ALWAYS rendered for host (hidden when no song) */}
+      
+      {/* YouTube Player Container - ALWAYS rendered for host but hidden off-screen for a clean UI */}
       {isHost && (
-        <div className={currentSong ? "mb-4" : "hidden"}>
-          <div
-            id={`youtube-player-${room._id}`}
-            className="w-full aspect-video rounded-lg overflow-hidden"
-          ></div>
+        <div className="absolute top-[-9999px] left-[-9999px] w-[250px] h-[250px] opacity-0 pointer-events-none z-[-1]">
+          <div id={`youtube-player-${room._id}`}></div>
         </div>
       )}
 
@@ -631,24 +659,10 @@ function NowPlaying({
           <div className="flex items-center justify-between mb-3">
             <div className="text-sm text-muted">Now Playing</div>
             <div className="flex items-center gap-2">
-              {isHost && youtubePlayer.isReady && (
-                <div className="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full">
-                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                  YouTube Music (Full Song)
-                </div>
-              )}
-              {!isHost && (
-                <div className="flex items-center gap-2 text-xs text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full">
-                  <span className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></span>
-                  Playing on host&apos;s device
-                </div>
-              )}
-              {isHost && youtubePlayer.isReady && (
-                <div className="flex items-center gap-2 text-xs text-green-400 bg-green-500/10 px-3 py-1 rounded-full">
-                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                  {isPlaying ? "Playing locally" : "Ready to play"}
-                </div>
-              )}
+              <div className={`flex items-center gap-2 text-xs px-3 py-1 rounded-full ${isHost ? 'text-emerald-400 bg-emerald-500/10' : 'text-purple-400 bg-purple-500/10'}`}>
+                <span className={`w-2 h-2 rounded-full animate-pulse ${isHost ? 'bg-emerald-400' : 'bg-purple-400'}`}></span>
+                {isHost ? "Live • Host" : "Live • Synced"}
+              </div>
             </div>
           </div>
           <div className="flex gap-6 mt-4 relative z-10">
@@ -976,7 +990,8 @@ function AddSongModal({
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [isAdding, setIsAdding] = useState(false);
+  const [addingSongId, setAddingSongId] = useState<string | null>(null);
+  const [isAddingMultiple, setIsAddingMultiple] = useState(false);
   const [error, setError] = useState("");
   const [selectedSongs, setSelectedSongs] = useState<Set<string>>(new Set());
 
@@ -1021,7 +1036,7 @@ function AddSongModal({
   const handleAddSelectedSongs = async () => {
     if (selectedSongs.size === 0) return;
 
-    setIsAdding(true);
+    setIsAddingMultiple(true);
     setError("");
 
     try {
@@ -1047,13 +1062,13 @@ function AddSongModal({
     } catch (err) {
       setError(handleApiError(err));
     } finally {
-      setIsAdding(false);
+      setIsAddingMultiple(false);
     }
   };
 
   // Add single song to queue
   const handleAddSong = async (track: any) => {
-    setIsAdding(true);
+    setAddingSongId(track.youtubeId);
     setError("");
 
     try {
@@ -1070,7 +1085,7 @@ function AddSongModal({
     } catch (err) {
       setError(handleApiError(err));
     } finally {
-      setIsAdding(false);
+      setAddingSongId(null);
     }
   };
 
@@ -1168,10 +1183,10 @@ function AddSongModal({
               {selectedSongs.size > 0 && (
                 <button
                   onClick={handleAddSelectedSongs}
-                  disabled={isAdding}
+                  disabled={isAddingMultiple || addingSongId !== null}
                   className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold hover:from-purple-600 hover:to-pink-600 transition disabled:opacity-50"
                 >
-                  {isAdding
+                  {isAddingMultiple
                     ? "Adding..."
                     : `Add ${selectedSongs.size} Song${
                         selectedSongs.size > 1 ? "s" : ""
@@ -1239,10 +1254,10 @@ function AddSongModal({
                         e.stopPropagation();
                         handleAddSong(track);
                       }}
-                      disabled={isAdding}
-                      className="px-4 py-2 rounded-lg bg-purple-500 text-white text-sm font-medium hover:bg-purple-600 transition opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                      disabled={addingSongId !== null || isAddingMultiple}
+                      className="px-4 py-2 rounded-lg bg-purple-500 text-white text-sm font-medium hover:bg-purple-600 transition opacity-0 group-hover:opacity-100 disabled:opacity-50 disabled:group-hover:opacity-50"
                     >
-                      {isAdding ? "Adding..." : "Add"}
+                      {addingSongId === track.youtubeId ? "Adding..." : "Add"}
                     </button>
                   </div>
                 );
