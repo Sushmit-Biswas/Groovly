@@ -630,10 +630,13 @@ function NowPlaying({
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[40%] bg-purple-500/20 blur-[100px] pointer-events-none rounded-full" />
       )}
       
-      {/* YouTube Player Container - ALWAYS rendered for host but hidden off-screen for a clean UI */}
+      {/* YouTube Player Container - ALWAYS rendered for host (hidden when no song) */}
       {isHost && (
-        <div className="absolute top-[-9999px] left-[-9999px] w-[250px] h-[250px] opacity-0 pointer-events-none z-[-1]">
-          <div id={`youtube-player-${room._id}`}></div>
+        <div className={currentSong ? "mb-4" : "hidden"}>
+          <div
+            id={`youtube-player-${room._id}`}
+            className="w-full aspect-video rounded-xl overflow-hidden border border-white/10"
+          ></div>
         </div>
       )}
 

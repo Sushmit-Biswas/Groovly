@@ -310,6 +310,94 @@ export default function Page() {
           </motion.div>
         </section>
 
+        {/* ── How It Works ── */}
+        <section className="relative mx-auto max-w-7xl px-6 py-32">
+          <div className="absolute left-1/2 top-0 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-purple-600/5 blur-[120px] pointer-events-none" />
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={staggerContainer} className="relative z-10">
+            <motion.div variants={fadeInUp} className="text-center mb-20">
+              <span className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest text-purple-300 border border-purple-500/30 bg-purple-500/10 mb-6">How It Works</span>
+              <h2 className="text-5xl md:text-6xl font-bold text-white mb-5">Three Steps to the <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">Perfect Vibe</span></h2>
+              <p className="text-lg text-gray-400 max-w-2xl mx-auto">No downloads. No DJ needed. Just create, share, and groove.</p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
+              {/* Connecting line */}
+              <div className="hidden md:block absolute top-24 left-[16.5%] right-[16.5%] h-[2px] bg-gradient-to-r from-purple-500/50 via-pink-500/50 to-orange-500/50" />
+
+              {[
+                { step: "01", title: "Create a Room", desc: "Spin up a listening room in seconds. Get a unique code to share with your crew.", icon: "🎧", color: "from-purple-500 to-violet-600" },
+                { step: "02", title: "Invite & Queue", desc: "Share the room code. Everyone searches YouTube and adds songs to the shared queue.", icon: "🎵", color: "from-pink-500 to-rose-600" },
+                { step: "03", title: "Vibe Together", desc: "Music plays in sync. Vote on tracks, skip together, and enjoy the perfect playlist.", icon: "🔥", color: "from-orange-500 to-red-500" },
+              ].map((item, i) => (
+                <motion.div key={i} variants={fadeInUp} className="relative text-center group">
+                  <div className={`mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br ${item.color} shadow-lg shadow-purple-500/20 text-3xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6`}>
+                    {item.icon}
+                  </div>
+                  <span className="text-sm font-bold text-purple-400/60 uppercase tracking-widest mb-2 block">Step {item.step}</span>
+                  <h3 className="text-2xl font-bold text-white mb-3">{item.title}</h3>
+                  <p className="text-gray-400 leading-relaxed max-w-xs mx-auto">{item.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ── Infinite Marquee / Social Proof ── */}
+        <section className="relative py-16 overflow-hidden border-y border-white/5">
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black z-10 pointer-events-none" />
+          <div className="flex animate-marquee whitespace-nowrap">
+            {[...Array(2)].map((_, setIdx) => (
+              <div key={setIdx} className="flex items-center gap-12 px-6">
+                {["10K+ Rooms Created", "★★★★★ Loved by DJs", "50K+ Songs Queued", "Real-Time Sync", "Zero Latency", "100% Free", "No Downloads", "YouTube Powered", "Vote to Skip", "Collaborative Playlists"].map((text, i) => (
+                  <span key={i} className="text-2xl md:text-3xl font-bold text-white/10 flex items-center gap-4">
+                    {text} <span className="text-purple-500/30">•</span>
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Testimonials / Social Proof Cards ── */}
+        <section className="relative mx-auto max-w-7xl px-6 py-32">
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-pink-600/5 blur-[100px] pointer-events-none" />
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={staggerContainer} className="relative z-10">
+            <motion.div variants={fadeInUp} className="text-center mb-16">
+              <span className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest text-pink-300 border border-pink-500/30 bg-pink-500/10 mb-6">What People Say</span>
+              <h2 className="text-5xl md:text-6xl font-bold text-white">The Crowd <span className="bg-gradient-to-r from-pink-400 to-orange-400 bg-clip-text text-transparent">Has Spoken</span></h2>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                { quote: "Groovly turned our house party into a concert. Everyone was adding bangers and the vibe was UNREAL.", name: "Arjun M.", role: "College DJ", avatar: "🎤" },
+                { quote: "Finally something where my friends can't fight over the aux. Democracy wins!", name: "Priya S.", role: "Party Host", avatar: "🎶" },
+                { quote: "We use Groovly at every hackathon. The collaborative queue keeps everyone pumped for 48 hours straight.", name: "Dev K.", role: "Hackathon Organizer", avatar: "💻" },
+              ].map((t, i) => (
+                <motion.div key={i} variants={fadeInUp} className="group relative rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-8 transition-all duration-500 hover:border-pink-500/30 hover:bg-white/[0.06]">
+                  <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-pink-600/10 to-purple-600/10 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-100" />
+                  <div className="relative z-10">
+                    <div className="text-4xl mb-4">{t.avatar}</div>
+                    <p className="text-gray-300 leading-relaxed mb-6 italic">&ldquo;{t.quote}&rdquo;</p>
+                    <div>
+                      <p className="text-white font-semibold">{t.name}</p>
+                      <p className="text-sm text-gray-500">{t.role}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ── Floating Objects Decoration ── */}
+        <div className="pointer-events-none fixed inset-0 z-[5] overflow-hidden">
+          <div className="absolute top-[20%] left-[5%] text-4xl opacity-10 animate-[float-rotate_12s_ease-in-out_infinite]">🎵</div>
+          <div className="absolute top-[60%] right-[8%] text-3xl opacity-10 animate-[float-rotate_15s_ease-in-out_infinite_2s]">🎶</div>
+          <div className="absolute top-[40%] left-[85%] text-5xl opacity-[0.06] animate-[float-rotate_18s_ease-in-out_infinite_4s]">🎧</div>
+          <div className="absolute top-[75%] left-[15%] text-3xl opacity-[0.08] animate-[float-rotate_14s_ease-in-out_infinite_1s]">🎤</div>
+          <div className="absolute top-[10%] right-[20%] text-2xl opacity-[0.07] animate-[float-rotate_16s_ease-in-out_infinite_3s]">🔥</div>
+        </div>
+
         {/* Animated Arrow CTA Buttons */}
         <section className="relative mx-auto mt-16 mb-32 max-w-5xl px-6">
           <motion.div 
