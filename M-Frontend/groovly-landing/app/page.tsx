@@ -3,23 +3,14 @@
 import Link from "next/link";
 import { CD } from "@/components/CD";
 import { StarField } from "@/components/StarField";
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 
-const fadeInUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
-};
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.2
-    }
-  }
-};
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger, useGSAP);
+}
 
 const cdData = [
   { src: "/assets/cd1.jpg", alt: "Groovify your night" },
@@ -31,10 +22,45 @@ const cdData = [
 
 export default function Page() {
   const [showNavbar, setShowNavbar] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    const animateFrom = (elem: HTMLElement, direction: number = 1) => {
+      let x = 0, y = direction * 100;
+      if(elem.classList.contains("gs_reveal_fromLeft")) {
+        x = -100; y = 0;
+      } else if (elem.classList.contains("gs_reveal_fromRight")) {
+        x = 100; y = 0;
+      }
+      elem.style.transform = `translate(${x}px, ${y}px)`;
+      elem.style.opacity = "0";
+      gsap.fromTo(elem, {x: x, y: y, autoAlpha: 0}, {
+        duration: 1.25, 
+        x: 0,
+        y: 0, 
+        autoAlpha: 1, 
+        ease: "expo", 
+        overwrite: "auto"
+      });
+    };
+
+    const hide = (elem: HTMLElement) => {
+      gsap.set(elem, {autoAlpha: 0});
+    };
+
+    gsap.utils.toArray(".gs_reveal").forEach(function(elem: any) {
+      hide(elem);
+      ScrollTrigger.create({
+        trigger: elem,
+        onEnter: function() { animateFrom(elem) }, 
+        onEnterBack: function() { animateFrom(elem, -1) },
+        onLeave: function() { hide(elem) }
+      });
+    });
+  }, { scope: containerRef, dependencies: [] });
 
   useEffect(() => {
     const handleScroll = () => {
-      // Show navbar when scrolled past 600px
       setShowNavbar(window.scrollY > 600);
     };
 
@@ -202,14 +228,8 @@ export default function Page() {
 
         {/* Centered Feature Showcase Section (moved out of negative margin area) */}
         <section className="relative mx-auto max-w-7xl px-6 py-32 flex items-center justify-center">
-          <motion.div 
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            className="flex flex-col items-center gap-16"
-          >
-            <motion.div variants={fadeInUp} className="text-center max-w-3xl">
+          <div className="flex flex-col items-center gap-16">
+            <div className="text-center max-w-3xl gs_reveal">
               <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent mb-5">
                 Your Party, Your Playlist
               </h2>
@@ -217,11 +237,11 @@ export default function Page() {
                 Every guest becomes a DJ. Vote, queue, and vibe together in
                 real-time.
               </p>
-            </motion.div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
               {/* Card 1 */}
-              <motion.div variants={fadeInUp} className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 transition-all duration-500 hover:scale-[1.03] hover:border-purple-400/50 hover:shadow-2xl hover:shadow-purple-500/30">
+              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 transition-all duration-500 hover:scale-[1.03] hover:border-purple-400/50 hover:shadow-2xl hover:shadow-purple-500/30 gs_reveal gs_reveal_fromLeft">
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <div className="relative z-10">
                   <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-purple-700 shadow-lg shadow-purple-500/50 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110">
@@ -247,10 +267,10 @@ export default function Page() {
                   </p>
                 </div>
                 <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-30" />
-              </motion.div>
+              </div>
 
               {/* Card 2 */}
-              <motion.div variants={fadeInUp} className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 transition-all duration-500 hover:scale-[1.03] hover:border-pink-400/50 hover:shadow-2xl hover:shadow-pink-500/30">
+              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 transition-all duration-500 hover:scale-[1.03] hover:border-pink-400/50 hover:shadow-2xl hover:shadow-pink-500/30 gs_reveal">
                 <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <div className="relative z-10">
                   <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-500 to-rose-700 shadow-lg shadow-pink-500/50 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110">
@@ -276,10 +296,10 @@ export default function Page() {
                   </p>
                 </div>
                 <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-pink-600 via-rose-600 to-pink-600 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-30" />
-              </motion.div>
+              </div>
 
               {/* Card 3 */}
-              <motion.div variants={fadeInUp} className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 transition-all duration-500 hover:scale-[1.03] hover:border-orange-400/50 hover:shadow-2xl hover:shadow-orange-500/30">
+              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 transition-all duration-500 hover:scale-[1.03] hover:border-orange-400/50 hover:shadow-2xl hover:shadow-orange-500/30 gs_reveal gs_reveal_fromRight">
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <div className="relative z-10">
                   <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 shadow-lg shadow-orange-500/50 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110">
@@ -305,20 +325,20 @@ export default function Page() {
                   </p>
                 </div>
                 <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-orange-600 via-red-600 to-orange-600 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-30" />
-              </motion.div>
+              </div>
             </div>
-          </motion.div>
+          </div>
         </section>
 
         {/* ── How It Works ── */}
         <section className="relative mx-auto max-w-7xl px-6 py-32">
           <div className="absolute left-1/2 top-0 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-purple-600/5 blur-[120px] pointer-events-none" />
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={staggerContainer} className="relative z-10">
-            <motion.div variants={fadeInUp} className="text-center mb-20">
+          <div className="relative z-10">
+            <div className="text-center mb-20 gs_reveal">
               <span className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest text-purple-300 border border-purple-500/30 bg-purple-500/10 mb-6">How It Works</span>
               <h2 className="text-5xl md:text-6xl font-bold text-white mb-5">Three Steps to the <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">Perfect Vibe</span></h2>
               <p className="text-lg text-gray-400 max-w-2xl mx-auto">No downloads. No DJ needed. Just create, share, and groove.</p>
-            </motion.div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
               {/* Connecting line */}
@@ -329,17 +349,17 @@ export default function Page() {
                 { step: "02", title: "Invite & Queue", desc: "Share the room code. Everyone searches YouTube and adds songs to the shared queue.", icon: "🎵", color: "from-pink-500 to-rose-600" },
                 { step: "03", title: "Vibe Together", desc: "Music plays in sync. Vote on tracks, skip together, and enjoy the perfect playlist.", icon: "🔥", color: "from-orange-500 to-red-500" },
               ].map((item, i) => (
-                <motion.div key={i} variants={fadeInUp} className="relative text-center group">
+                <div key={i} className="relative text-center group gs_reveal">
                   <div className={`mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br ${item.color} shadow-lg shadow-purple-500/20 text-3xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6`}>
                     {item.icon}
                   </div>
                   <span className="text-sm font-bold text-purple-400/60 uppercase tracking-widest mb-2 block">Step {item.step}</span>
                   <h3 className="text-2xl font-bold text-white mb-3">{item.title}</h3>
                   <p className="text-gray-400 leading-relaxed max-w-xs mx-auto">{item.desc}</p>
-                </motion.div>
+                </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         </section>
 
         {/* ── Infinite Marquee / Social Proof ── */}
@@ -361,11 +381,11 @@ export default function Page() {
         {/* ── Testimonials / Social Proof Cards ── */}
         <section className="relative mx-auto max-w-7xl px-6 py-32">
           <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-pink-600/5 blur-[100px] pointer-events-none" />
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={staggerContainer} className="relative z-10">
-            <motion.div variants={fadeInUp} className="text-center mb-16">
+          <div className="relative z-10">
+            <div className="text-center mb-16 gs_reveal gs_reveal_fromLeft">
               <span className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest text-pink-300 border border-pink-500/30 bg-pink-500/10 mb-6">What People Say</span>
               <h2 className="text-5xl md:text-6xl font-bold text-white">The Crowd <span className="bg-gradient-to-r from-pink-400 to-orange-400 bg-clip-text text-transparent">Has Spoken</span></h2>
-            </motion.div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
@@ -373,7 +393,7 @@ export default function Page() {
                 { quote: "Finally something where my friends can't fight over the aux. Democracy wins!", name: "Priya S.", role: "Party Host", avatar: "🎶" },
                 { quote: "We use Groovly at every hackathon. The collaborative queue keeps everyone pumped for 48 hours straight.", name: "Dev K.", role: "Hackathon Organizer", avatar: "💻" },
               ].map((t, i) => (
-                <motion.div key={i} variants={fadeInUp} className="group relative rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-8 transition-all duration-500 hover:border-pink-500/30 hover:bg-white/[0.06]">
+                <div key={i} className="group relative rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-8 transition-all duration-500 hover:border-pink-500/30 hover:bg-white/[0.06] gs_reveal">
                   <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-pink-600/10 to-purple-600/10 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-100" />
                   <div className="relative z-10">
                     <div className="text-4xl mb-4">{t.avatar}</div>
@@ -383,10 +403,10 @@ export default function Page() {
                       <p className="text-sm text-gray-500">{t.role}</p>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         </section>
 
         {/* ── Floating Objects Decoration ── */}
@@ -400,16 +420,10 @@ export default function Page() {
 
         {/* Animated Arrow CTA Buttons */}
         <section className="relative mx-auto mt-16 mb-32 max-w-5xl px-6">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="flex flex-col items-center justify-center gap-14"
-          >
-            <motion.h2 variants={fadeInUp} className="text-5xl md:text-6xl font-bold text-center bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
+          <div className="flex flex-col items-center justify-center gap-14">
+            <h2 className="text-5xl md:text-6xl font-bold text-center bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent gs_reveal gs_reveal_fromLeft">
               Ready to Get Grooving?
-            </motion.h2>
+            </h2>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-8 w-full">
               {/* Login Button with Arrow Animation */}
@@ -585,11 +599,11 @@ export default function Page() {
                 <div className="absolute inset-0 -z-0 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
               </Link>
             </div>
-          </motion.div>
+          </div>
         </section>
 
         {/* Stunning Footer - Full Width Edge-to-Edge */}
-        <footer className="relative mt-32 w-full border-t border-white/5 bg-gradient-to-b from-transparent via-black/40 to-black/80 backdrop-blur-xl">
+        <footer className="relative mt-32 w-full border-t border-white/5 bg-gradient-to-b from-transparent via-black/40 to-black/80 backdrop-blur-xl gs_reveal">
           <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
 
           <div className="mx-auto max-w-screen-2xl px-6 py-16 lg:px-12">

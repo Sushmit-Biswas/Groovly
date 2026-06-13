@@ -2,7 +2,9 @@
 
 import clsx from "clsx";
 import Image from "next/image";
-import { useReducedMotion } from "framer-motion";
+import { useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 type CDSide = "left" | "right";
 
@@ -14,28 +16,84 @@ export type CDProps = {
 };
 
 export function CD({ src, side, size = 310, alt = "CD artwork" }: CDProps) {
-  const reducedMotion = useReducedMotion();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const spinContainerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    const el = containerRef.current;
+    const spinEl = spinContainerRef.current;
+    if (!el || !spinEl) return;
+
+    // Continuous spin animation
+    const spinAnimation = gsap.to(spinEl, {
+      rotation: 360,
+      duration: 20,
+      repeat: -1,
+      ease: "none",
+    });
+
+    const xTo = gsap.quickTo(el, "rotationY", { ease: "power3", duration: 0.6 });
+    const yTo = gsap.quickTo(el, "rotationX", { ease: "power3", duration: 0.6 });
+    const scaleTo = gsap.quickTo(el, "scale", { ease: "power3", duration: 0.4 });
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = el.getBoundingClientRect();
+      const relX = e.clientX - rect.left;
+      const relY = e.clientY - rect.top;
+      
+      const xPos = (relX / rect.width - 0.5) * 40; // max rotation 20deg
+      const yPos = (relY / rect.height - 0.5) * -40;
+
+      xTo(xPos);
+      yTo(yPos);
+    };
+
+    const handleMouseEnter = () => {
+      scaleTo(1.15);
+      gsap.to(el, { boxShadow: "0px 20px 50px rgba(168, 85, 247, 0.6), 0px 0px 100px rgba(168, 85, 247, 0.3)", duration: 0.4, ease: "power3" });
+      gsap.to(spinAnimation, { timeScale: 3.33, duration: 0.5 }); // 20s -> 6s is roughly 3.33x speed
+      el.addEventListener("mousemove", handleMouseMove);
+    };
+
+    const handleMouseLeave = () => {
+      el.removeEventListener("mousemove", handleMouseMove);
+      xTo(0);
+      yTo(0);
+      scaleTo(1);
+      gsap.to(el, { boxShadow: "none", duration: 0.4, ease: "power3" });
+      gsap.to(spinAnimation, { timeScale: 1, duration: 0.5 });
+    };
+
+    el.addEventListener("mouseenter", handleMouseEnter);
+    el.addEventListener("mouseleave", handleMouseLeave);
+
+    return () => {
+      el.removeEventListener("mouseenter", handleMouseEnter);
+      el.removeEventListener("mouseleave", handleMouseLeave);
+      el.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, { scope: containerRef, dependencies: [] });
 
   return (
     <div
+      ref={containerRef}
       className={clsx(
         "group relative rounded-full overflow-hidden pointer-events-auto cursor-pointer",
-        "transition-all duration-700 ease-out",
-        "hover:scale-110 hover:shadow-[0_0_60px_rgba(168,85,247,0.5),0_0_120px_rgba(168,85,247,0.2)]"
       )}
       style={{
         height: size,
         width: size,
+        perspective: "1000px",
+        transformStyle: "preserve-3d"
       }}
     >
-      {/* Spinning Container — uses CSS custom property for smooth speed transition */}
+      {/* Spinning Container */}
       <div
+        ref={spinContainerRef}
         className={clsx(
           "absolute inset-0 rounded-full overflow-hidden cd-spin-container",
           "bg-gradient-to-br from-[#111] via-[#181818] to-[#050505]",
-          "shadow-[0_45px_120px_-30px_rgba(0,0,0,0.85)] ring-2 ring-white/20",
-          "group-hover:ring-purple-500/40",
-          !reducedMotion && "animate-[spin_20s_linear_infinite] group-hover:[animation-duration:6s]"
+          "ring-2 ring-white/20 group-hover:ring-purple-500/40 transition-colors duration-500"
         )}
       >
         <Image
@@ -63,9 +121,6 @@ export function CD({ src, side, size = 310, alt = "CD artwork" }: CDProps) {
             "opacity-50 group-hover:opacity-100 transition-opacity duration-500"
           )}
         />
-
-        {/* Additional hover glow ring */}
-        <div className="pointer-events-none absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-[radial-gradient(circle_at_30%_30%,rgba(168,85,247,0.15),transparent_70%)]" />
       </div>
     </div>
   );
