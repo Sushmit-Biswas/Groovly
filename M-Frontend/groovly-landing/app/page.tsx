@@ -179,22 +179,22 @@ export default function Page() {
             id="features"
           >
             {/* CD 1 - Stuck to Left Edge Top - Higher position with float animation */}
-            <div className="absolute -left-20 top-[15%] z-20 opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_0.1s_forwards] animate-[floatSlow_8s_ease-in-out_infinite]">
+            <div className="absolute -left-20 top-[15%] z-20 opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_0.1s_forwards,floatSlow_8s_ease-in-out_infinite]">
               <CD src={cdData[0].src} size={280} alt={cdData[0].alt} />
             </div>
 
             {/* CD 2 - Stuck to Right Edge Top - Lower position with float animation */}
-            <div className="absolute -right-20 top-[25%] z-20 opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_0.3s_forwards] animate-[floatSlow_9s_ease-in-out_infinite_1s]">
+            <div className="absolute -right-20 top-[25%] z-20 opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_0.3s_forwards,floatSlow_9s_ease-in-out_1s_infinite]">
               <CD src={cdData[1].src} size={300} alt={cdData[1].alt} />
             </div>
 
             {/* CD 4 - Stuck to Left Edge Lower with float animation */}
-            <div className="absolute -left-16 top-[60%] z-20 opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_0.9s_forwards] animate-[floatSlow_10s_ease-in-out_infinite_2s]">
+            <div className="absolute -left-16 top-[60%] z-20 opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_0.9s_forwards,floatSlow_10s_ease-in-out_2s_infinite]">
               <CD src={cdData[3].src} size={260} alt={cdData[3].alt} />
             </div>
 
             {/* CD 5 - Stuck to Right Edge Lower with float animation */}
-            <div className="absolute -right-24 top-[75%] z-20 opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_1.1s_forwards] animate-[floatSlow_11s_ease-in-out_infinite_1.5s]">
+            <div className="absolute -right-24 top-[75%] z-20 opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_1.1s_forwards,floatSlow_11s_ease-in-out_1.5s_infinite]">
               <CD src="/assets/cd3.png" size={320} alt={cdData[4].alt} />
             </div>
           </section>
