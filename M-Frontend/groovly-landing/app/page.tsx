@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { CD } from "@/components/CD";
 import { StarField } from "@/components/StarField";
+import { AnimatedContinuousSections } from "@/components/AnimatedContinuousSections";
 import { useEffect, useState, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -69,7 +70,7 @@ export default function Page() {
   }, []);
 
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-[radial-gradient(ellipse_at_bottom,#1B2735_0%,#090A0F_100%)]">
+    <main ref={containerRef} className="relative min-h-screen overflow-x-hidden bg-[radial-gradient(ellipse_at_bottom,#1B2735_0%,#090A0F_100%)]">
       {/* Parallax Star Field Background */}
       <StarField />
 
@@ -417,6 +418,9 @@ export default function Page() {
           <div className="absolute top-[75%] left-[15%] text-3xl opacity-[0.08] animate-[float-rotate_14s_ease-in-out_infinite_1s]">🎤</div>
           <div className="absolute top-[10%] right-[20%] text-2xl opacity-[0.07] animate-[float-rotate_16s_ease-in-out_infinite_3s]">🔥</div>
         </div>
+
+        {/* Animated Continuous Sections with GSAP Observer */}
+        <AnimatedContinuousSections />
 
         {/* Animated Arrow CTA Buttons */}
         <section className="relative mx-auto mt-16 mb-32 max-w-5xl px-6">
