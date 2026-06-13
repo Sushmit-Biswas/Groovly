@@ -12,20 +12,17 @@ if (typeof window !== "undefined") {
 
 const slides = [
   {
-    title: "Vibe Together",
-    subtitle: "Real-time sync",
+    title: "Vibe together",
     bg: "bg-gradient-to-br from-purple-900 to-black",
     image: "/assets/cd1.jpg",
   },
   {
-    title: "Democratic Voting",
-    subtitle: "The crowd decides",
+    title: "Democratic voting",
     bg: "bg-gradient-to-br from-pink-900 to-black",
     image: "/assets/cd2.jpg",
   },
   {
-    title: "Zero Latency",
-    subtitle: "Perfectly timed playback",
+    title: "Zero latency",
     bg: "bg-gradient-to-br from-orange-900 to-black",
     image: "/assets/cd4.jpeg",
   },
@@ -185,12 +182,12 @@ export function AnimatedContinuousSections() {
                   backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.8)), url(${slide.image})`,
                 }}
               >
-                <h2 className="continuous-heading text-6xl md:text-8xl font-black text-white text-center tracking-tighter drop-shadow-2xl uppercase">
+                <h2 
+                  className="continuous-heading text-[clamp(2rem,6vw,8rem)] font-[600] leading-[1.2] text-center w-[90vw] max-w-[1200px] normal-case text-white drop-shadow-2xl"
+                  style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}
+                >
                   {slide.title}
                 </h2>
-                <p className="continuous-heading mt-6 text-xl md:text-3xl text-white/80 font-medium tracking-wide">
-                  {slide.subtitle}
-                </p>
               </div>
             </div>
           </div>

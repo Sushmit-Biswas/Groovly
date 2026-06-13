@@ -5,6 +5,7 @@ import {
   Lato,
   Imperial_Script,
   Quicksand,
+  Montserrat,
 } from "next/font/google";
 import Script from "next/script";
 import "../styles/globals.css";
@@ -24,12 +25,17 @@ const lato = Lato({
 const imperialScript = Imperial_Script({
   subsets: ["latin"],
   weight: ["400"],
-  variable: "--font-imperial",
+  variable: "--font-accent",
 });
 const quicksand = Quicksand({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-quicksand",
+});
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "900"],
+  variable: "--font-montserrat",
 });
 
 export const metadata: Metadata = {
@@ -49,7 +55,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${poppins.variable} ${lato.variable} ${imperialScript.variable} ${quicksand.variable} overflow-x-hidden`}
+      className={`${inter.variable} ${poppins.variable} ${lato.variable} ${imperialScript.variable} ${quicksand.variable} ${montserrat.variable} overflow-x-hidden`}
     >
       <body className="bg-bg text-white font-sans min-h-screen flex flex-col items-stretch overflow-x-hidden">
         <Script

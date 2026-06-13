@@ -113,6 +113,28 @@ export default function Page() {
       </nav>
 
       <div className="relative z-10">
+        {/* Scattered CD Layout - Edge-to-Edge, positioned across the entire page */}
+        <div className="absolute inset-0 pointer-events-none w-full overflow-hidden z-20">
+          {/* CD 1 - Between Banner and "Your Party" */}
+          <div className="absolute -left-16 top-[18%] opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_0.1s_forwards,floatSlow_8s_ease-in-out_infinite]">
+            <CD src={cdData[0].src} size={280} alt={cdData[0].alt} glowColor={cdData[0].glowColor} />
+          </div>
+
+          {/* CD 2 - Between "Your Party" and "How It Works" */}
+          <div className="absolute -right-20 top-[38%] opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_0.3s_forwards,floatSlow_9s_ease-in-out_1s_infinite]">
+            <CD src={cdData[1].src} size={300} alt={cdData[1].alt} glowColor={cdData[1].glowColor} />
+          </div>
+
+          {/* CD 3 - Between "How It Works" and Testimonials */}
+          <div className="absolute -left-28 top-[62%] opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_0.9s_forwards,floatSlow_10s_ease-in-out_2s_infinite]">
+            <CD src={cdData[3].src} size={260} alt={cdData[3].alt} glowColor={cdData[3].glowColor} />
+          </div>
+
+          {/* CD 4 - Near "Ready to Get Grooving" CTA */}
+          <div className="absolute -right-24 top-[92%] opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_1.1s_forwards,floatSlow_11s_ease-in-out_1.5s_infinite]">
+            <CD src="/assets/cd3.png" size={320} alt={cdData[4].alt} glowColor={cdData[2].glowColor} />
+          </div>
+        </div>
         <header className="mx-auto flex max-w-7xl flex-col gap-16 px-6 pb-20 pt-24 md:px-10 lg:px-16">
           <div className="flex flex-col items-center gap-10 text-center relative">
             {/* Animated decorations around banner - matching image aesthetic */}
@@ -200,31 +222,6 @@ export default function Page() {
             </div>
           </div>
 
-          {/* Scattered CD Layout - Edge-to-Edge */}
-          <section
-            className="absolute inset-0 pointer-events-none w-full overflow-hidden"
-            id="features"
-          >
-            {/* CD 1 - Top Left */}
-            <div className="absolute -left-12 top-[8%] z-20 opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_0.1s_forwards,floatSlow_8s_ease-in-out_infinite]">
-              <CD src={cdData[0].src} size={280} alt={cdData[0].alt} glowColor={cdData[0].glowColor} />
-            </div>
-
-            {/* CD 2 - Top Right */}
-            <div className="absolute -right-12 top-[18%] z-20 opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_0.3s_forwards,floatSlow_9s_ease-in-out_1s_infinite]">
-              <CD src={cdData[1].src} size={300} alt={cdData[1].alt} glowColor={cdData[1].glowColor} />
-            </div>
-
-            {/* CD 4 - Middle Left */}
-            <div className="absolute -left-16 top-[40%] z-20 opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_0.9s_forwards,floatSlow_10s_ease-in-out_2s_infinite]">
-              <CD src={cdData[3].src} size={260} alt={cdData[3].alt} glowColor={cdData[3].glowColor} />
-            </div>
-
-            {/* CD 5 - Bottom Right */}
-            <div className="absolute -right-16 top-[85%] z-20 opacity-0 transition-all duration-1000 ease-out [animation:fadeInUp_0.8s_ease-out_1.1s_forwards,floatSlow_11s_ease-in-out_1.5s_infinite]">
-              <CD src="/assets/cd3.png" size={320} alt={cdData[4].alt} glowColor={cdData[2].glowColor} />
-            </div>
-          </section>
         </header>
 
         {/* Centered Feature Showcase Section (moved out of negative margin area) */}
