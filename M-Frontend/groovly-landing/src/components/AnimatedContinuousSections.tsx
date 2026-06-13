@@ -45,16 +45,37 @@ export function AnimatedContinuousSections() {
       const outerWrappers = gsap.utils.toArray<HTMLElement>(".continuous-outer");
       const innerWrappers = gsap.utils.toArray<HTMLElement>(".continuous-inner");
 
+      // Apply SplitText to headings if available from CDN
+      const SplitText = (window as any).SplitText;
+      let splitHeadings: any[] = [];
+      if (SplitText) {
+        splitHeadings = headings.map(heading => {
+          return new SplitText(heading, { type: 'chars,words,lines', linesClass: 'clip-text' });
+        });
+      }
+
+      // Add overflow hidden to lines to create the slice effect
+      gsap.set(".clip-text", { overflow: "hidden" });
+
       let currentIndex = -1;
       const wrap = gsap.utils.wrap(0, sections.length);
       let animating = false;
+      let autoPlayTimer: ReturnType<typeof setTimeout>;
 
       gsap.set(outerWrappers, { yPercent: 100 });
       gsap.set(innerWrappers, { yPercent: -100 });
 
+      function startAutoPlay() {
+        clearTimeout(autoPlayTimer);
+        autoPlayTimer = setTimeout(() => {
+          if (!animating) gotoSection(currentIndex + 1, 1);
+        }, 4000);
+      }
+
       function gotoSection(index: number, direction: number) {
         index = wrap(index);
         animating = true;
+        clearTimeout(autoPlayTimer);
         const fromTop = direction === -1;
         const dFactor = fromTop ? -1 : 1;
 
@@ -62,6 +83,7 @@ export function AnimatedContinuousSections() {
           defaults: { duration: 1.25, ease: "power1.inOut" },
           onComplete: () => {
             animating = false;
+            startAutoPlay();
           },
         });
 
@@ -90,18 +112,29 @@ export function AnimatedContinuousSections() {
             { yPercent: 15 * dFactor },
             { yPercent: 0 },
             0
-          )
-          .fromTo(
-            headings[index],
-            { autoAlpha: 0, yPercent: 150 * dFactor },
-            {
-              autoAlpha: 1,
-              yPercent: 0,
-              duration: 1,
-              ease: "power2",
-            },
-            0.2
           );
+
+        // Animate the characters instead of the whole heading
+        if (splitHeadings[index]) {
+          const chars = splitHeadings[index].chars;
+          if (chars && chars.length > 0) {
+            tl.fromTo(
+              chars,
+              { autoAlpha: 0, yPercent: 150 * dFactor },
+              {
+                autoAlpha: 1,
+                yPercent: 0,
+                duration: 1,
+                ease: "power2",
+                stagger: {
+                  each: 0.02,
+                  from: "random",
+                },
+              },
+              0.2
+            );
+          }
+        }
 
         currentIndex = index;
       }
@@ -122,6 +155,10 @@ export function AnimatedContinuousSections() {
 
       return () => {
         observer.kill();
+        clearTimeout(autoPlayTimer);
+        if (SplitText) {
+          splitHeadings.forEach(split => split.revert());
+        }
       };
     },
     { scope: containerRef, dependencies: [] }
@@ -130,7 +167,7 @@ export function AnimatedContinuousSections() {
   return (
     <div
       ref={containerRef}
-      className="relative h-screen w-full overflow-hidden bg-black gs_reveal"
+      className="relative h-[80vh] w-full overflow-hidden bg-black gs_reveal my-12"
     >
       {slides.map((slide, i) => (
         <section

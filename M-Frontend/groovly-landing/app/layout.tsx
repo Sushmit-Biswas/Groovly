@@ -56,6 +56,10 @@ export default function RootLayout({
           src="https://www.youtube.com/iframe_api"
           strategy="beforeInteractive"
         />
+        <Script
+          src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/SplitText.min.js"
+          strategy="beforeInteractive"
+        />
         <div className="flex-1">{children}</div>
       </body>
     </html>
