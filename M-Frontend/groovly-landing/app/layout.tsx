@@ -49,9 +49,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${poppins.variable} ${lato.variable} ${imperialScript.variable} ${quicksand.variable}`}
+      className={`${inter.variable} ${poppins.variable} ${lato.variable} ${imperialScript.variable} ${quicksand.variable} overflow-x-hidden`}
     >
-      <body className="bg-bg text-white font-sans min-h-screen flex items-stretch">
+      <body className="bg-bg text-white font-sans min-h-screen flex items-stretch overflow-x-hidden">
         <Script
           src="https://www.youtube.com/iframe_api"
           strategy="beforeInteractive"
