@@ -63,6 +63,14 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
         <Script
+          src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/gsap.min.js"
+          strategy="beforeInteractive"
+        />
+        <Script
+          src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/ScrollTrigger.min.js"
+          strategy="beforeInteractive"
+        />
+        <Script
           src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/SplitText.min.js"
           strategy="beforeInteractive"
         />
