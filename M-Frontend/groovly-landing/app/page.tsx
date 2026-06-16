@@ -65,6 +65,7 @@ export default function Page() {
       hide(elem);
       ScrollTrigger.create({
         trigger: elem,
+        start: "top 85%", // Trigger when top of element hits 85% of viewport
         onEnter: function() { animateFrom(elem) }, 
         onEnterBack: function() { animateFrom(elem, -1) },
         onLeave: function() { hide(elem) }
@@ -77,8 +78,19 @@ export default function Page() {
       setShowNavbar(window.scrollY > 600);
     };
 
+    const handleLoad = () => ScrollTrigger.refresh();
+
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("load", handleLoad);
+    
+    // Also trigger a refresh after a small delay in case fonts/images load asynchronously without firing 'load'
+    const timeout = setTimeout(() => ScrollTrigger.refresh(), 500);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("load", handleLoad);
+      clearTimeout(timeout);
+    };
   }, []);
 
   return (

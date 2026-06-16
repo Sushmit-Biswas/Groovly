@@ -147,7 +147,7 @@ export function AnimatedContinuousSections() {
         onDown: () => !animating && gotoSection(currentIndex - 1, -1),
         onUp: () => !animating && gotoSection(currentIndex + 1, 1),
         tolerance: 10,
-        preventDefault: true, // Prevents page scrolling while hovering over this component
+        preventDefault: false, // DO NOT trap scroll! Let user scroll past while the section animates.
       });
 
       return () => {
