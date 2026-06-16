@@ -26,6 +26,18 @@ export default function Page() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
+    // Initialize ScrollSmoother if available
+    const ScrollSmoother = (window as any).ScrollSmoother;
+    if (ScrollSmoother) {
+      gsap.registerPlugin(ScrollSmoother);
+      ScrollSmoother.create({
+        wrapper: "#smooth-wrapper",
+        content: "#smooth-content",
+        smooth: 1.5,
+        effects: true,
+      });
+    }
+
     const animateFrom = (elem: HTMLElement, direction: number = 1) => {
       let x = 0, y = direction * 100;
       if(elem.classList.contains("gs_reveal_fromLeft")) {

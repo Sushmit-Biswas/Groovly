@@ -66,7 +66,15 @@ export default function RootLayout({
           src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/SplitText.min.js"
           strategy="beforeInteractive"
         />
-        <div className="flex-1">{children}</div>
+        <Script
+          src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/ScrollSmoother.min.js"
+          strategy="beforeInteractive"
+        />
+        <div id="smooth-wrapper">
+          <div id="smooth-content">
+            <div className="flex-1">{children}</div>
+          </div>
+        </div>
       </body>
     </html>
   );
